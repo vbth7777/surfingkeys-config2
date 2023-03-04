@@ -63,9 +63,8 @@ function copyIwaraVideo(id, index){
 function convertStringToQueryString(s){
     return s.replaceAll(' ', '%20')
 }
-let vidIndex = 1;
-api.mapkey('cv', 'Go to mmdfans with this video', function(){
-     getHTML('https://mmdfans.net/?query='+convertStringToQueryString(document.querySelector('.title').innerText), function(s, res){
+function GoToMmdFansVid(title){
+    getHTML('https://mmdfans.net/?query='+convertStringToQueryString(title), function(s, res){
         if(s){
             api.Front.showBanner('Error:'+s)
             return;
@@ -82,11 +81,27 @@ api.mapkey('cv', 'Go to mmdfans with this video', function(){
         console.log(videos[0].href)
         window.open(videos[0].href);
     })
-})
-api.mapkey('cs', 'copy source video link from iwara', function(){
-    const id = window.location.href.match(/videos\/.+$/)[0].replace('videos/', '')
-    copyiwaravideo(id, vidindex);
-}, {domain: /erommdtube.com/ig})
+}
+function getTitleFromIwaraUrl(url){
+    getHTML(url, function(e, res){
+        return res.querySelector('.title').innerText;
+    })
+}
+function convertStringToIwaraQuery(s){
+    return s.replaceAll(' ', '+');
+}
+let vidIndex = 1;
+api.mapkey('cv', 'Go to mmdfans with this video', function(){
+    GoToMmdFansVid(document.querySelector('.title').innerText);
+}, {domain: /iwara.tv/ig})
+api.mapkey('cv', 'Open by iwara', function(){
+    getHTML('https://ecchi.iwara.tv/search?query='+convertStringToIwaraQuery(document.querySelector('.title').innerText), function(s, res){
+        window.open(res.querySelector('.view-content .title a').href)
+    })
+}, {domain: /mmdfans/ig})
+api.mapkey('cv', 'Open by iwara', function(){
+    window.open(document.querySelector('[href*="https://ecchi.iwara"]').href);
+}, {domain: /erommdtube.com|oreno3d/ig})
 api.mapkey('co', 'copy source video link from iwara', function(){
     const id = window.location.href.match(/videos\/.+$/)[0].replace('videos/', '')
     getJSON(`https://ecchi.iwara.tv/api/video/${id}`, (status, res)=>{
