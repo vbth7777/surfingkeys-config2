@@ -65,8 +65,7 @@ function convertStringToQueryString(s){
 }
 let vidIndex = 1;
 api.mapkey('cv', 'Go to mmdfans with this video', function(){
-    // getHTML('https://mmdfans.net/?query='+convertStringToQueryString(document.querySelector('.title').innerText), function(s, res){
-    getHTML('https://mmdfans.net/?query='+"miku", function(s, res){
+     getHTML('https://mmdfans.net/?query='+convertStringToQueryString(document.querySelector('.title').innerText), function(s, res){
         if(s){
             api.Front.showBanner('Error:'+s)
             return;
