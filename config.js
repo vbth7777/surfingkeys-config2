@@ -1,20 +1,3 @@
-//Startup 
-if (!("path" in Event.prototype))
-Object.defineProperty(Event.prototype, "path", {
-  get: function() {
-    var path = [];
-    var currentElem = this.target;
-    while (currentElem) {
-      path.push(currentElem);
-      currentElem = currentElem.parentElement;
-    }
-    if (path.indexOf(window) === -1 && path.indexOf(document) === -1)
-      path.push(document);
-    if (path.indexOf(window) === -1)
-      path.push(window);
-    return path;
-  }
-});
 // an example to create a new mapping `ctrl-y`
 api.mapkey('<ctrl-y>', 'Show me the money', function() {
     Front.showPopup('a well-known phrase uttered by characters in the 1996 film Jerry Maguire (Escape to close).');
@@ -32,16 +15,6 @@ api.unmap('x')
 api.mapkey(';x', 'Remove element', function() {
     api.Hints.create("", function(element){
         element.remove();
-    })
-});
-api.mapkey(';fc', 'Focus video player', function() {
-    api.Hints.create("*", function(element){
-        element?.focus();
-    })
-});
-api.mapkey(';ff', 'Focus video player', function() {
-    api.Hints.create("video", function(element){
-        element?.focus();
     })
 });
 function getJSON(url, callback) {
@@ -87,7 +60,30 @@ function copyIwaraVideo(id, index){
         api.Front.showBanner('Copied ', uri)
     })
 }
+function convertStringToQueryString(s){
+    return s.replaceAll(' ', '%20')
+}
 let vidIndex = 1;
+api.mapkey('cv', 'Go to mmdfans with this video', function(){
+    // getHTML('https://mmdfans.net/?query='+convertStringToQueryString(document.querySelector('.title').innerText), function(s, res){
+    getHTML('https://mmdfans.net/?query='+"miku", function(s, res){
+        if(s){
+            api.Front.showBanner('Error:'+s)
+            return;
+        }
+        const doc = res;
+        const videos = doc.querySelectorAll('.mdui-col > a')
+        if(!videos || videos.length < 1){
+            api.Front.showBanner('Not found video');
+            return;
+        }
+        if(videos.length > 1){
+            api.Front.showBanner('Result have above 1 video');
+        }
+        console.log(videos[0].href)
+        window.open(videos[0].href);
+    })
+})
 api.mapkey('cs', 'copy source video link from iwara', function(){
     const id = window.location.href.match(/videos\/.+$/)[0].replace('videos/', '')
     copyiwaravideo(id, vidindex);
@@ -420,4 +416,6 @@ input {
 //  font-weight: var(--font-weight);
 //}
 `;
+
+
 
