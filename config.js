@@ -97,10 +97,10 @@ api.mapkey('cv', 'Open by iwara', function(){
         window.open(res.querySelector('.view-content .title a').href)
     })
 }, {domain: /mmdfans/ig})
-api.mapkey('cv', 'Open by iwara', function(){
+api.mapkey('cs', 'Open by iwara', function(){
     window.open(document.querySelector('[href*="https://ecchi.iwara"]').href);
 }, {domain: /erommdtube.com|oreno3d/ig})
-api.mapkey('cs', 'Open by mmdfans', async function(){
+api.mapkey('cv', 'Open by mmdfans', async function(){
     const url = document.querySelector('[href*="https://ecchi.iwara"]').href;
     getHTML(url, function(s, res){
         const title = res.querySelector('.title').innerText;
