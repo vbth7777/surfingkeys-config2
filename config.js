@@ -18,7 +18,6 @@ api.mapkey(';x', 'Remove element', function() {
     })
 });
 function getJSON(url, callback) {
-    api.Front.showBanner("Loading...")
     var xhr = new XMLHttpRequest();
     xhr.open('GET', url, true);
     xhr.responseType = 'json';
@@ -33,7 +32,6 @@ function getJSON(url, callback) {
     xhr.send();
 };
 function getHTML(url, callback) {
-    api.Front.showBanner("Loading...")
     var xhr = new XMLHttpRequest();
     xhr.open('GET', url, true);
     xhr.responseType = 'document';
@@ -64,10 +62,15 @@ function convertStringToQueryString(s){
     console.log(s)
     return s.replaceAll(' ', '%20')
 }
-function GoToMmdFansVid(title){
+let originalTitle
+function GoToMmdFansVid(title, isSearching = true){
+    if(isSearching) {
+        api.Front.showBanner('Searching...')
+        originalTitle = title;
+    } ;
     getHTML('https://mmdfans.net/?query='+convertStringToQueryString(title), function(s, res){
         if(s){
-            api.Front.showBanner('Error:'+s)
+            api.Front.showPopup('Error:'+s)
             return;
         }
         const doc = res;
@@ -75,14 +78,28 @@ function GoToMmdFansVid(title){
         console.log(doc)
         console.log(videos)
         if(!videos || videos.length < 1){
-            api.Front.showBanner('Not found video');
+            const titleBackup = title;
+            title = title.replace(/ [^ ]*$/, "")
+            if(!title || titleBackup == title) {
+                api.Front.showPopup("Not found video")
+                return;
+            }
+            api.Front.showBanner('Not found, searching ' + title)
+            GoToMmdFansVid(title, false)
             return;
         }
+        let index = 0;
         if(videos.length > 1){
             api.Front.showBanner('Result have above 1 video');
+            const vids = Array.from(doc.querySelectorAll('.mdui-grid-tile'))
+            for(let i in vids){
+                if(vids[i].innerText.indexOf(originalTitle) != -1){
+                    index = i;
+                }
+            }
         }
-        console.log(videos[0].href)
-        window.open(videos[0].href);
+        console.log(videos[index].href)
+        window.open(videos[index].href);
     })
 }
 function convertStringToIwaraQuery(s){
@@ -102,7 +119,12 @@ api.mapkey('cs', 'Open by iwara', function(){
 }, {domain: /erommdtube.com|oreno3d/ig})
 api.mapkey('cv', 'Open by mmdfans', async function(){
     const url = document.querySelector('[href*="https://ecchi.iwara"]').href;
+    
     getHTML(url, function(s, res){
+        if(res.querySelector('.content h1').innerText.toLowerCase().indexOf('private') != -1) {
+            api.Front.showPopup('The video is private')
+            return;
+        }
         const title = res.querySelector('.title').innerText;
         console.log(title)
         GoToMmdFansVid(title);
@@ -436,6 +458,4 @@ input {
 //  font-weight: var(--font-weight);
 //}
 `;
-
-
 
