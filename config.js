@@ -10,6 +10,7 @@ api.map('gt', 'T');
 api.unmap('<ctrl-i>');
 
 // ------------------configure----------------
+let vidIndex = 0;
 settings.smoothScroll = true;
 api.unmap('x')
 api.mapkey(';x', 'Remove element', function() {
@@ -17,6 +18,59 @@ api.mapkey(';x', 'Remove element', function() {
         element.remove();
     })
 });
+window.onload = function(){
+    if(window.location.href.match(/youtube.com/g)){
+        preventKey('k')
+        preventKey('p')
+        preventKey('v')
+    }
+}
+function clickLikeButtonYoutube(){
+    document.querySelector("#segmented-like-button > ytd-toggle-button-renderer > yt-button-shape > button > yt-touch-feedback-shape > div").click();
+}
+function checkSaveButtonTextOnYoutube(text){
+    return text.indexOf('lưu') != -1 || text.indexOf('save') != -1 || text.indexOf('playlist') != -1 || text.indexOf('danh sách phát') != -1
+}
+function clickPlaylistButtonYoutube(){
+    let outBtns = Array.from(document.querySelectorAll("#flexible-item-buttons > ytd-button-renderer button"));
+    let isOut = false;
+    for(let btn of outBtns){
+        const text = btn.ariaLabel.trim().toLowerCase()
+        if(checkSaveButtonTextOnYoutube(text)){
+            btn.click();
+            isOut = true;
+            break;
+        }
+    }
+    if(isOut) return;
+    document.querySelector("#button-shape > button").click()
+    let btns = document.querySelectorAll('.ytd-popup-container ytd-menu-service-item-renderer');
+    for(let btn of btns){
+        const text = btn.innerText.trim().toLowerCase()
+        if(checkSaveButtonTextOnYoutube(text)){
+            btn.click();
+            break;
+        }
+    }
+}
+function preventKey(key) {
+  document.addEventListener('keydown', function(event) {
+    if (event.key === key) {
+      event.preventDefault();
+    }
+  });
+}
+
+api.mapkey('sk', 'Click like button', function(){
+    clickLikeButtonYoutube()
+}, {domain: /youtube.com/ig})
+api.mapkey('sp', 'Click save playlist button', function(){
+    clickPlaylistButtonYoutube();
+}, {domain: /youtube.com/ig})
+api.mapkey('sv', 'Click like and save playlist button', function(){
+    clickLikeButtonYoutube()
+    clickPlaylistButtonYoutube();
+}, {domain: /youtube.com/ig})
 function getJSON(url, callback) {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', url, true);
@@ -100,12 +154,12 @@ function GoToMmdFansVid(title, isSearching = true){
         }
         console.log(videos[index].href)
         window.open(videos[index].href);
+        
     })
 }
 function convertStringToIwaraQuery(s){
     return s.replaceAll(' ', '+');
 }
-let vidIndex = 1;
 api.mapkey('cv', 'Go to mmdfans with this video', function(){
     GoToMmdFansVid(document.querySelector('.title').innerText);
 }, {domain: /iwara.tv/ig})
