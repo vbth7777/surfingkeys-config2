@@ -18,13 +18,6 @@ api.mapkey(';x', 'Remove element', function() {
         element.remove();
     })
 });
-window.onload = function(){
-    if(window.location.href.match(/youtube.com/g)){
-        preventKey('k')
-        preventKey('p')
-        preventKey('v')
-    }
-}
 function clickLikeButtonYoutube(){
     document.querySelector("#segmented-like-button > ytd-toggle-button-renderer > yt-button-shape > button > yt-touch-feedback-shape > div").click();
 }
@@ -75,6 +68,8 @@ function getJSON(url, callback) {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', url, true);
     xhr.responseType = 'json';
+    xhr.setRequestHeader('x-version', 'e0acd4327f80f4313d575e774d25a4c3d32f540c');
+
     xhr.onload = function() {
       var status = xhr.status;
       if (status === 200) {
@@ -160,43 +155,52 @@ function GoToMmdFansVid(title, isSearching = true){
 function convertStringToIwaraQuery(s){
     return s.replaceAll(' ', '+');
 }
+let selectorTitle = '.page-video__details > .text'
 api.mapkey('cv', 'Go to mmdfans with this video', function(){
-    GoToMmdFansVid(document.querySelector('.title').innerText);
+    GoToMmdFansVid(document.querySelector(selectorTitle).innerText);
 }, {domain: /iwara.tv/ig})
 api.mapkey('cv', 'Open by iwara', function(){
-    getHTML('https://ecchi.iwara.tv/search?query='+convertStringToIwaraQuery(document.querySelector('.title').innerText), function(s, res){
+    getHTML('https://ecchi.iwara.tv/search?query='+convertStringToIwaraQuery(document.querySelector(selectorTitle).innerText), function(s, res){
         window.open(res.querySelector('.view-content .title a').href)
     })
 }, {domain: /mmdfans/ig})
 api.mapkey('cs', 'Open by iwara', function(){
-    window.open(document.querySelector('[href*="https://ecchi.iwara"]').href);
+    getJSON(document.querySelector('[href*="https://ecchi.iwara"]').href.replace(/.+\//, ''), function(s, json){
+    })
+    window.open();
 }, {domain: /erommdtube.com|oreno3d/ig})
 api.mapkey('cv', 'Open by mmdfans', async function(){
-    const url = document.querySelector('[href*="https://ecchi.iwara"]').href;
-    
+    const url = document.querySelector('[href*="iwara.tv/video"]').href.replace('ecchi.iwara.tv/videos', 'iwara.tv/video');
+    console.log(url)
     getHTML(url, function(s, res){
-        if(res.querySelector('.content h1').innerText.toLowerCase().indexOf('private') != -1) {
+        if(res.innerText.toLowerCase().indexOf('private') != -1) {
             api.Front.showPopup('The video is private')
             return;
         }
-        const title = res.querySelector('.title').innerText;
+        const title = res.querySelector(selectorTitle).innerText;
         console.log(title)
         GoToMmdFansVid(title);
     })
 }, {domain: /erommdtube.com|oreno3d/ig})
+api.mapkey('co', 'copy source video link from mmdfans', function(){
+    const vid = document.querySelector('*[src*="cdn."][src*="video"]');
+    api.Clipboard.write(vid.src);
+}, {domain: /mmdfans/ig})
 api.mapkey('co', 'copy source video link from iwara', function(){
-    const id = window.location.href.match(/videos\/.+$/)[0].replace('videos/', '')
-    getJSON(`https://ecchi.iwara.tv/api/video/${id}`, (status, res)=>{
-        if(status){
-            api.Front.showBanner('Error: ', status);
-            return;
-        }
-        const json = res;
-        let i = json.length <= 2 && vidIndex >= 2 ? 1 : vidIndex;
-        const {uri} = json[vidIndex];
-        api.Clipboard.write('https:'+uri);
-        api.Front.showBanner('Copied ', uri)
-    })
+    const vid = document.querySelectorAll('a[href*="iwara.tv/download"]')[vidIndex];
+    api.Clipboard.write(vid.href);
+    // const id = window.location.href.match(/videos\/.+$/)[0].replace('videos/', '')
+    // getJSON(`https://ecchi.iwara.tv/api/video/${id}`, (status, res)=>{
+    //     if(status){
+    //         api.Front.showBanner('Error: ', status);
+    //         return;
+    //     }
+    //     const json = res;
+    //     let i = json.length <= 2 && vidIndex >= 2 ? 1 : vidIndex;
+    //     const {uri} = json[vidIndex];
+    //     api.Clipboard.write('https:'+uri);
+    //     api.Front.showBanner('Copied ', uri)
+    // })
 }, {domain: /iwara.tv/ig})
 api.mapkey('cc', 'Change video index in iwara', function(){
     vidIndex = vidIndex == 2 ? 0 : vidIndex + 1;
