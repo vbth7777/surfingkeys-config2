@@ -225,10 +225,38 @@ api.mapkey('cv', 'Go to mmdfans with this video', async function(){
     console.log(title)
     GoToMmdFansVid(title);
 }, {domain: /iwara.tv/ig})
-api.mapkey('cv', 'Open by iwara', function(){
-    getHTML('https://ecchi.iwara.tv/search?query='+convertStringToIwaraQuery(document.querySelector(selectorTitle).innerText), function(s, res){
-        window.open(res.querySelector('.view-content .title a').href)
-    })
+api.mapkey('cv', 'Open by iwara', async function(){
+    let fetchData= function fetchData(url){
+        return fetch(encodeURI(url)).then(res => res.json()).then(data => data).catch(error => {api.Front.showPopup('Error: '+error)});
+    }
+    api.Front.showBanner("Searching...")
+    const title = document.querySelector('.title').innerText
+    const author = document.querySelector('[href*="query=author"]').innerText
+    const results = (await fetchData('https://api.iwara.tv/search?type=user&query=' + author)).results;
+    let user = {};
+    for(let o of results){
+        if(author.indexOf(o.name) != -1){
+            user = o;
+            break;
+        }
+    }
+    let pageTotal = 0;
+    for(let i = 0; i<=pageTotal;i++){
+        const userObject = await fetchData('https://api.iwara.tv/videos?page='+i+'&sort=date&user='+user.id);
+        const videos = userObject.results;
+        pageTotal = Math.floor(userObject.count/userObject.limit);
+        for(let vid of videos){
+            if(vid.title.indexOf(title) != -1){
+                
+                window.open("https://iwara.tv/video/"+vid.id);
+                return;
+            }
+        }
+    }
+    api.Front.showPopup("Not found")
+    // getHTML('https://ecchi.iwara.tv/search?query='+convertStringToIwaraQuery(document.querySelector(selectorTitle).innerText), function(s, res){
+    //     window.open(res.querySelector('.view-content .title a').href)
+    // })
 }, {domain: /mmdfans/ig})
 api.mapkey('cs', 'Open by iwara', function(){
     getJSON(document.querySelector('[href*="https://ecchi.iwara"]').href.replace(/.+\//, ''), function(s, json){
@@ -272,8 +300,7 @@ api.mapkey('co', 'copy source video link from iwara', function(){
     //     api.Clipboard.write('https:'+uri);
     //     api.Front.showBanner('Copied ', uri)
     // })
-})
-// }, {domain: /iwara.tv/ig})
+}, {domain: /iwara.tv/ig})
 api.mapkey('<Ctrl-h>', 'Mouse Over', function(){
     api.Hints.create("", function(element){
         mouseOver(element);
