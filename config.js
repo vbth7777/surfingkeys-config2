@@ -275,15 +275,15 @@ api.mapkey('co', 'copy source video link from iwara', function(){
 })
 // }, {domain: /iwara.tv/ig})
 api.mapkey('<Ctrl-h>', 'Mouse Over', function(){
-    api.Hints.create("img[src*='i.iwara.tv/image/thumbnail']", function(element){
+    api.Hints.create("", function(element){
         mouseOver(element);
-    })
+    }, {multipleHits: true})
 }, {domain: /iwara.tv/ig})
 api.mapkey('<Ctrl-h>', 'Mouse Over', function(){
     api.Hints.create("", function(element){
         mouseOver(element);
     })
-})
+}, {domain: /^(?!.*iwara.tv)/ig})
 api.mapkey('cc', 'Change video index in iwara', function(){
     vidIndex = vidIndex == 2 ? 0 : vidIndex + 1;
     api.Front.showBanner('Change index to ' + vidIndex);
@@ -598,3 +598,5 @@ input {
 //  font-weight: var(--font-weight);
 //}
 `;
+
+
