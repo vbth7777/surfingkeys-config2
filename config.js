@@ -18,6 +18,11 @@ api.mapkey(';x', 'Remove element', function() {
         element.remove();
     })
 });
+api.mapkey(';r', 'Get full text by element', function() {
+    api.Hints.create("", function(element){
+        api.Front.showPopup(element.innerText);
+    })
+});
 function mouseOver(element){
     let event = new MouseEvent('mouseover', {
       'view': window,
