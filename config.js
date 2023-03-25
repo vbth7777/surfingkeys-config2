@@ -73,6 +73,16 @@ api.mapkey('sv', 'Click like and save playlist button', function(){
     clickLikeButtonYoutube()
     clickPlaylistButtonYoutube();
 }, {domain: /youtube.com/ig})
+api.mapkey('sv', 'Click like and save playlist button', function(){
+    let btns = document.querySelectorAll('button');
+    for(let btn of btns){
+        const text = btn.innerText.toLowerCase();
+        if(text == "add to" || text == 'like'){
+            btn.click()
+            btn.scrollIntoViewIfNeeded()
+        }
+    }
+}, {domain: /iwara.tv/ig})
 function getJSON(url, callback, xVersionHeader = null) {
         fetch(url, {
           headers: {
