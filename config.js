@@ -23,6 +23,11 @@ api.mapkey(';r', 'Get full text by element', function() {
         api.Front.showPopup(element.innerText);
     })
 });
+api.mapkey('sv', 'click favorite button', function() {
+    const btn = document.querySelector('#favorite');
+    api.Front.showBanner(btn.innerText.trim().toLowerCase().replace('favorite', "favorited"));
+    btn.click();
+}, {domain: /nhentai/ig});
 function mouseOver(element){
     let event = new MouseEvent('mouseover', {
       'view': window,
@@ -87,6 +92,26 @@ api.mapkey('sv', 'Click like and save playlist button', function(){
             btn.scrollIntoViewIfNeeded()
         }
     }
+}, {domain: /iwara.tv/ig})
+function fetchData(url){
+    return fetch(encodeURI(url)).then(res => res.json()).then(data => data).catch(error => {api.Front.showPopup('Error: '+error)});
+}
+api.mapkey('sr', 'Open random video', async function(){
+    const idPlaylist = document.location.href.match(/playlist\/.+/)[0].replace(/playlist|\//ig, '');
+    let pageTotal = 0;
+    const vids = []
+    let json = 0;
+    let maxVids = 0;
+    for(let i = 0; i <= json; i++){
+        json = await fetchData(`https://api.iwara.tv/playlist/${idPlaylist}?page=${i}`)
+        vids.push(...json.results);
+        maxVids = json.count;
+        json = json.count/json.limit
+    }
+    console.log(vids);
+    const ranNumber = Math.floor(Math.random()*maxVids);
+    console.log(ranNumber)
+    window.open("https://iwara.tv/video/"+vids[ranNumber].id);
 }, {domain: /iwara.tv/ig})
 function getJSON(url, callback, xVersionHeader = null) {
         fetch(url, {
