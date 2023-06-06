@@ -195,7 +195,7 @@ async function getIwaraVideoTitle(id, index){
 function getIwaraVideoId(url){
     return url.match(/(video\/.+\/)|(video\/.+)/)[0].replace(/video|\//g, '');
 }
-function copyIwaraVideo(id, index){
+function copyIwaraVideo(id, index, isPlayWithMpv){
     function getFileId(url){
         return url.match(/file\/.+\?/g)[0].replace(/file\/|\?/g, '')
     }
@@ -224,9 +224,14 @@ function copyIwaraVideo(id, index){
                     break;
                 }
             }
-            const uri = json[i].src.download;
-            api.Clipboard.write('https:'+uri);
+            const uri = 'https:'+json[i].src.download;
+            api.Clipboard.write(uri);
             api.Front.showBanner('Copied ', uri)
+            if(isPlayWithMpv){
+                debugger
+                api.Front.showBanner('Opening mpv...');
+                runWithMpv(uri);
+            }
         }, await sha1(fileId+'_'+getExpire(fileUrl)+'_5nFp9kmbNnHdAFhaqMvt'))
     })
 }
@@ -277,6 +282,12 @@ function GoToMmdFansVid(title, isSearching = true){
         window.open(openUrl);
         
     })
+}
+async function runWithMpv(url){
+    fetch('http://localhost:3000', {
+        method:'post',
+        body: new URLSearchParams({url: url})
+    }).catch(err => console.error(err))
 }
 function convertStringToIwaraQuery(s){
     return s.replaceAll(' ', '+');
@@ -361,7 +372,7 @@ api.mapkey('co', 'copy source video link from mmdfans', function(){
 }, {domain: /mmdfans/ig})
 api.mapkey('sr', 'copy source video link from iwara', async function(){
     api.Hints.create("*[href*='video/']", function(element){
-        copyIwaraVideo(element.href.match(/video\/.+(\/)?/)[0].replace(/video\/|\/.+/g, ''), vidIndex);
+        copyIwaraVideo(element.href.match(/video\/.+(\/)?/)[0].replace(/video\/|\/.+/g, ''), vidIndex, true);
     })
 }, {domain: /iwara/ig})
 api.mapkey('co', 'copy source video link from iwara', async function(){
@@ -709,5 +720,6 @@ input {
 //  font-weight: var(--font-weight);
 //}
 `;
+
 
 
