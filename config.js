@@ -1,6 +1,6 @@
 // an example to create a new mapping `ctrl-y`
 api.mapkey('<ctrl-y>', 'Show me the money', function() {
-  Front.showPopup('a well-known phrase uttered by characters in the 1996 film Jerry Maguire (Escape to close).');
+    Front.showPopup('a well-known phrase uttered by characters in the 1996 film Jerry Maguire (Escape to close).');
 });
 
 // an example to replace `T` with `gt`, click `Default mappings` to see how `T` works.
@@ -16,17 +16,17 @@ api.unmap('x')
 api.unmap('om')
 api.unmap('sr')
 let socket = null
-if (window.location.href.includes('iwara')) {
-  socket = new WebSocket('ws://localhost:9790');
-  socket.addEventListener('message', (res) => {
-    const data = JSON.parse(res.data)
-    if (data.isContinue) {
-      Array.from(document.querySelectorAll('div.videoTeaser')).forEach(el => {
-        if (el.querySelector('a').href.includes(data.url))
-          el.style.backgroundColor = ''
-      })
-    }
-  })
+if(window.location.href.includes('iwara')){
+    socket = new WebSocket('ws://localhost:9790');
+    socket.addEventListener('message', (res) => {
+        const data = JSON.parse(res.data)
+        if(data.isContinue){
+            Array.from(document.querySelectorAll('div.videoTeaser')).forEach(el => {
+                if(el.querySelector('a').href.includes(data.url))
+                    el.style.backgroundColor = ''
+            })
+        }
+    })
 }
 async function createViewer(idGallery) {
   const urls = await fetch('https://nhentai.net/api/gallery/' + idGallery).then(res => res.json()).then(data => {
@@ -39,7 +39,7 @@ async function createViewer(idGallery) {
     return images;
   })
   const imagesPerPage = 50;
-  //   let sizePercent = 50;
+//   let sizePercent = 50;
   let sizeImage = '50vw';
   let page = 1;
   const totalPage = Math.ceil(urls.length / imagesPerPage);
@@ -98,28 +98,28 @@ async function createViewer(idGallery) {
   favoriteBtn.style.margin = '10px';
   favoriteBtn.style.padding = '10px';
   favoriteBtn.style.fontSize = '1.4rem';
-  const favoriteMethod = 'favorite';
-  const unfavoriteMethod = 'unfavorite';
+  const favoriteMethod = 'favorite'; 
+  const unfavoriteMethod = 'unfavorite'; 
   favoriteBtn.onclick = () => {
-    const state = favoriteBtn.innerHTML != favoriteMethod ? unfavoriteMethod : favoriteMethod
-    favoriteBtn.disabled = true;
-
-    fetch('https://nhentai.net/api/gallery/' + idGallery + '/' + state, {
-      method: 'post',
-      headers: {
-        "X-Csrftoken": document.cookie.replace(/.+=/g, '')
-      }
-    }).then(res => {
-      favoriteBtn.innerHTML = favoriteBtn.innerHTML == favoriteMethod ? unfavoriteMethod : favoriteMethod;
-      favoriteBtn.disabled = false;
-    })
+      const state = favoriteBtn.innerHTML != favoriteMethod ? unfavoriteMethod : favoriteMethod
+      favoriteBtn.disabled = true;
+      
+      fetch('https://nhentai.net/api/gallery/'+idGallery+'/'+state, {
+        method:'post',
+        headers:{
+            "X-Csrftoken":document.cookie.replace(/.+=/g, '')
+        }
+      }).then(res => {
+          favoriteBtn.innerHTML = favoriteBtn.innerHTML == favoriteMethod ? unfavoriteMethod : favoriteMethod;
+          favoriteBtn.disabled = false;
+      })
   }
-  fetch('https://nhentai.net/g/' + idGallery).then(res => res.text()).then(data => {
-    const parser = new DOMParser();
-    const dom = parser.parseFromString(data, 'text/html');
-    favoriteBtn.innerHTML = dom.querySelector('#favorite').innerText.toLowerCase().includes(unfavoriteMethod) ? unfavoriteMethod : favoriteMethod;
+  fetch('https://nhentai.net/g/'+idGallery).then(res => res.text()).then(data => {
+      const parser = new DOMParser();
+      const dom = parser.parseFromString(data, 'text/html');
+      favoriteBtn.innerHTML =dom.querySelector('#favorite').innerText.toLowerCase().includes(unfavoriteMethod) ? unfavoriteMethod : favoriteMethod;
   })
-
+  
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
@@ -199,30 +199,32 @@ async function createViewer(idGallery) {
       prevPageHandler();
     }
     else if (e.key === 'ArrowDown') {
-      //   sizePercent += 10;
-      sizeImage = (Number(sizeImage.replace(/\w+$/g, '')) - 100) + 'px'
+    //   sizePercent += 10;
+    sizeImage =     (Number(sizeImage.replace(/[a-z]+$/, ''))-10) + sizeImage.match(/[a-z]+$/g)[0]
       Array.from(imgBox.querySelectorAll('img')).forEach(el => {
+          console.log(sizeImage)
         el.style.width = sizeImage//sizePercent + '%';
       })
     }
-    else if (e.key === 'ArrowUp') {
-      //   sizePercent -= 10;
-      sizeImage = (Number(sizeImage.replace(/\w+$/, '')) + 100) + sizeImage.match(/\w+$/g)[0]
+    else if (e.key === 'ArrowUp') { 
+    //   sizePercent -= 10;
+    sizeImage =     (Number(sizeImage.replace(/[a-z]+$/, ''))+10) + sizeImage.match(/[a-z]+$/g)[0]
       Array.from(imgBox.querySelectorAll('img')).forEach(el => {
+          console.log(sizeImage)
         el.style.width = sizeImage//sizePercent + '%';
       })
     }
   });
   const updateImgBox = () => {
     imgBox.innerHTML = '';
-    const imagesNumber = imagesPerPage * (page - 1);
+    const imagesNumber = imagesPerPage * (page-1);
     imgBox.appendChild(paginationTop)
     for (let i = 0; i < imagesPerPage; i++) {
-      if (i >= urls.length) {
-        break;
-      }
-      const div = document.createElement('div')
-      div.style.position = 'relative'
+        if(imagesNumber+i>=urls.length){
+            break;
+        }
+        const div = document.createElement('div')
+        div.style.position = 'relative'
       const img = document.createElement('img');
       img.src = urls[imagesNumber + i];
       img.style.position = 'absolute'
@@ -233,45 +235,45 @@ async function createViewer(idGallery) {
       img.style.objectFit = 'cover';
       img.loading = 'lazy';
       img.onerror = () => {
-        if (img.src.includes('i5') && img.src.includes('jpg')) {
-          img.src = img.src.replace('i5', 'i3');
-        }
-        else if (img.src.includes('i3') && img.src.includes('png')) {
-          img.src = img.src.replace('png', 'jpg');
-        }
-        else if (img.src.includes('i5') && img.src.includes('png')) {
-          img.src = img.src.replace('i5', 'i3');
-        }
-        else if (img.src.includes('i7') && img.src.includes('png')) {
-          img.src = img.src.replace('i7', 'i5');
-        }
-        else if (img.src.includes('jpg')) {
-          img.src = img.src.replace('jpg', 'png');
-        }
+          if(img.src.includes('i5') && img.src.includes('jpg')){
+              img.src = img.src.replace('i5', 'i3');
+          }
+          else if(img.src.includes('i3') && img.src.includes('png')){
+              img.src = img.src.replace('png', 'jpg');
+          }
+          else if(img.src.includes('i5') && img.src.includes('png')){
+              img.src = img.src.replace('i5', 'i3');
+          }
+          else if(img.src.includes('i7')&& img.src.includes('png')){
+              img.src = img.src.replace('i7', 'i5');
+          }
+          else if(img.src.includes('jpg')){
+              img.src = img.src.replace('jpg', 'png');
+          }
       }
       const imgTemp = document.createElement('img');
       imgTemp.src = img.src.replace('.jpg', 't.jpg').replace(/\/\/i\d+/g, '//t3');
       imgTemp.onerror = () => {
-        if (imgTemp.src.includes('t7') && imgTemp.src.includes('jpg')) {
-          imgTemp.src = imgTemp.src.replace('t7', 't5');
-        }
-        else if (imgTemp.src.includes('t7') && imgTemp.src.includes('png')) {
-          imgTemp.src = imgTemp.src.replace('png', 'jpg');
-        }
-        else if (imgTemp.src.includes('t5') && imgTemp.src.includes('png')) {
-          imgTemp.src = imgTemp.src.replace('t5', 't7');
-        }
-        else if (imgTemp.src.includes('t3') && imgTemp.src.includes('png')) {
-          imgTemp.src = imgTemp.src.replace('t3', 't5');
-        }
-        else if (imgTemp.src.includes('jpg')) {
-          imgTemp.src = imgTemp.src.replace('jpg', 'png');
-        }
+          if(imgTemp.src.includes('t7') && imgTemp.src.includes('jpg')){
+              imgTemp.src = imgTemp.src.replace('t7', 't5');
+          }
+          else if(imgTemp.src.includes('t7') && imgTemp.src.includes('png')){
+              imgTemp.src = imgTemp.src.replace('png', 'jpg');
+          }
+          else if(imgTemp.src.includes('t5') && imgTemp.src.includes('png')){
+              imgTemp.src = imgTemp.src.replace('t5', 't7');
+          }
+          else if(imgTemp.src.includes('t3')&& imgTemp.src.includes('png')){
+              imgTemp.src = imgTemp.src.replace('t3', 't5');
+          }
+          else if(imgTemp.src.includes('jpg')){
+              imgTemp.src = imgTemp.src.replace('jpg', 'png');
+          }
       }
       imgTemp.style.width = sizeImage//sizePercent + '%';
       imgTemp.style.height = 'auto';
       imgTemp.style.objectFit = 'cover';
-
+      
       div.appendChild(imgTemp)
       div.appendChild(img)
       imgBox.appendChild(div);
@@ -289,238 +291,238 @@ async function createViewer(idGallery) {
   document.body.appendChild(containerBox);
 }
 api.mapkey('sf', 'Open all video on page', function() {
-  let index = 0;
-  const urls = Array.from(document.querySelectorAll('a[href*="/video/"]')).map(a => getIdIwara(a.href)).filter((item, pos, self) => self.indexOf(item) == pos);
-  copyIwaraVideo(urls[0], vidIndex, true)
-  socket.onmessage = (res) => {
-    const data = JSON.parse(res.data)
-    if (data.isContinue) {
-      copyIwaraVideo(urls[++index], vidIndex, true)
+    let index = 0;
+    const urls = Array.from(document.querySelectorAll('a[href*="/video/"]')).map(a => getIdIwara(a.href)).filter((item, pos, self) => self.indexOf(item) == pos);
+    copyIwaraVideo(urls[0], vidIndex, true)
+    socket.onmessage = (res) => {
+        const data = JSON.parse(res.data)
+        if(data.isContinue){
+            copyIwaraVideo(urls[++index], vidIndex, true)
+        }
     }
-  }
-}, { domain: /iwara/g });
+}, {domain: /iwara/g});
 api.mapkey('st', 'Stop socket', function() {
-  api.Front.showBanner('Stopped Socket')
-  socket.onmessage = () => { };
-});
+    api.Front.showBanner('Stopped Socket')
+    socket.onmessage = () => {};
+} );
 api.mapkey('sr', 'Read Comic', function() {
-  api.Hints.create('a[href*="/g/"]', el => {
-    const id = el.href.replace(/[^0-9]/g, '');
-    createViewer(id);
-  })
-}, { domain: /nhentai/ig });
+    api.Hints.create('a[href*="/g/"]', el => {
+        const id = el.href.replace(/[^0-9]/g, '');
+        createViewer(id);
+    })
+}, {domain: /nhentai/ig});
 api.mapkey('sk', 'Read Comic', function() {
-  const id = window.location.href.replace(/[^0-9]/g, '');
-  createViewer(id);
-}, { domain: /nhentai.net\/g\//ig });
+    const id = window.location.href.replace(/[^0-9]/g, '');
+    createViewer(id);
+}, {domain: /nhentai.net\/g\//ig});
 
 api.mapkey('om', 'search with mmdfans', function() {
-  const query = window.prompt();
-  window.open(encodeuri("https://mmdfans.net/?query=" + query))
+    const query = window.prompt();
+    window.open(encodeuri("https://mmdfans.net/?query="+query))
 });
 api.mapkey('co', 'copy video url', function() {
-  document.querySelector("#pwm-info-button").click()
-  document.querySelector("#pwm-info-button").click()
-  const value = document.querySelector("#pwm-info-table > tbody > tr:nth-child(3) > td:nth-child(2) > input");
-  if (value.value) {
-    api.Clipboard.write(value.value);
-    return;
-  }
-  api.Front.showPopup("Can't get video url")
-}, { domain: /bilibili.com/ig });
+    document.querySelector("#pwm-info-button").click()
+    document.querySelector("#pwm-info-button").click()
+    const value = document.querySelector("#pwm-info-table > tbody > tr:nth-child(3) > td:nth-child(2) > input");
+    if(value.value){
+        api.Clipboard.write(value.value);
+        return;
+    }
+    api.Front.showPopup("Can't get video url")
+}, {domain: /bilibili.com/ig});
 api.mapkey(';x', 'Remove element', function() {
-  api.Hints.create("", function(element) {
-    element.remove();
-  })
+    api.Hints.create("", function(element){
+        element.remove();
+    })
 });
 api.mapkey(';r', 'Get full text by element', function() {
-  api.Hints.create("", function(element) {
-    api.Front.showPopup(element.innerText);
-  })
+    api.Hints.create("", function(element){
+        api.Front.showPopup(element.innerText);
+    })
 });
 api.mapkey('sv', 'click favorite button', async function() {
-  let btn = document.querySelector('.tth-favorite-btn') || document.querySelector('#favorite');
-  api.Front.showBanner(btn.innerText.trim().toLowerCase().replace('favorite', "favorited"));
-  btn.click();
-
-}, { domain: /nhentai/ig });
-async function getAccessTokenFromIwara() {
-  return await fetch('https://api.iwara.tv/user/token', {
-    method: 'post',
-    headers: {
-      'Authorization': 'Bearer ' + localStorage.token
-    }
-  }).then(res => res.json()).then(data => data.accessToken)
+    let btn = document.querySelector('.tth-favorite-btn') || document.querySelector('#favorite');
+    api.Front.showBanner(btn.innerText.trim().toLowerCase().replace('favorite', "favorited"));
+    btn.click();
+    
+}, {domain: /nhentai/ig});
+async function getAccessTokenFromIwara(){
+    return await fetch('https://api.iwara.tv/user/token', {
+        method: 'post',
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.token
+        }
+    }).then(res => res.json()).then(data => data.accessToken)
 }
-function createCheckBoxes(checkboxes, isIwara) {
-  // Create container element
-  const container = document.createElement('div');
-  container.style.display = 'flex';
-  container.style.justifyContent = 'center';
-  container.style.alignItems = 'center';
-  container.style.height = '100vh';
-  container.style.background = 'rgba(0, 0, 0, 0.5)';
-  container.style.backdropFilter = 'blur(5px)';
-  container.style.position = 'fixed';
-  container.style.left = '0';
-  container.style.top = '0';
-  container.style.width = '100%';
-  container.style.zIndex = '9999';
-  const handleEsc = (e) => {
-    if (e.key == "Escape") {
-      container.remove();
-      document.removeEventListener('keyup', handleEsc)
+function createCheckBoxes(checkboxes, isIwara){
+    // Create container element
+    const container = document.createElement('div');
+    container.style.display = 'flex';
+    container.style.justifyContent = 'center';
+    container.style.alignItems = 'center';
+    container.style.height = '100vh';
+    container.style.background = 'rgba(0, 0, 0, 0.5)';
+    container.style.backdropFilter = 'blur(5px)';
+    container.style.position = 'fixed';
+    container.style.left = '0';
+    container.style.top = '0';
+    container.style.width = '100%';
+    container.style.zIndex = '9999';
+    const handleEsc = (e) => {
+        if(e.key == "Escape"){
+            container.remove();
+            document.removeEventListener('keyup', handleEsc)
+        }
     }
-  }
-  document.addEventListener('keyup', handleEsc)
-
-  // Create black box
-  const blackBox = document.createElement('div');
-  blackBox.style.backgroundColor = 'black';
-  blackBox.style.color = 'white';
-  blackBox.style.padding = '20px';
-  blackBox.style.borderRadius = '10px'; // Adjust the border radius here
-  blackBox.style.width = '300px';
-  blackBox.style.position = 'relative';
-
-  // Create close button
-  const closeButton = document.createElement('button');
-  closeButton.innerHTML = '&times;';
-  closeButton.style.position = 'absolute';
-  closeButton.style.top = '10px';
-  closeButton.style.right = '10px';
-  closeButton.style.border = 'none';
-  closeButton.style.backgroundColor = 'transparent';
-  closeButton.style.color = 'white';
-  closeButton.style.fontSize = '24px';
-  closeButton.style.fontWeight = 'bold';
-  closeButton.style.cursor = 'pointer';
-  closeButton.style.width = '30px';
-  closeButton.style.height = '30px';
-  closeButton.style.borderRadius = '50%';
-  closeButton.style.display = 'flex';
-  closeButton.style.justifyContent = 'center';
-  closeButton.style.alignItems = 'center';
-  closeButton.style.outline = 'none';
-  closeButton.style.boxShadow = '0 0 3px rgba(0, 0, 0, 0.3)';
-  closeButton.style.transition = 'background-color 0.3s';
-
-  // Event listener for close button
-  closeButton.addEventListener('click', () => {
-    container.remove();
-  });
-
-  // Mouse hover effect for close button
-  closeButton.addEventListener('mouseenter', () => {
-    closeButton.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
-  });
-
-  closeButton.addEventListener('mouseleave', () => {
+    document.addEventListener('keyup', handleEsc)
+    
+    // Create black box
+    const blackBox = document.createElement('div');
+    blackBox.style.backgroundColor = 'black';
+    blackBox.style.color = 'white';
+    blackBox.style.padding = '20px';
+    blackBox.style.borderRadius = '10px'; // Adjust the border radius here
+    blackBox.style.width = '300px';
+    blackBox.style.position = 'relative';
+    
+    // Create close button
+    const closeButton = document.createElement('button');
+    closeButton.innerHTML = '&times;';
+    closeButton.style.position = 'absolute';
+    closeButton.style.top = '10px';
+    closeButton.style.right = '10px';
+    closeButton.style.border = 'none';
     closeButton.style.backgroundColor = 'transparent';
-  });
-
-  // Append close button to the black box
-  blackBox.appendChild(closeButton);
-
-  // Create checkboxes
-
-  checkboxes.forEach(async (obj) => {
-    let checkboxText = '';
-    const checkboxContainer = document.createElement('div');
-    checkboxContainer.style.display = 'flex';
-    checkboxContainer.style.alignItems = 'center';
-    if (isIwara) {
-      checkboxText = obj.title;
-    }
-
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.id = checkboxText;
-    checkbox.checked = false;
-    if (isIwara && obj.isAdded) {
-      checkbox.checked = true;
-    }
-    if (isIwara) {
-      checkboxContainer.addEventListener('mousedown', async () => {
-        let method = checkbox.checked ? 'delete' : 'post'
-        const authorization = 'Bearer ' + localStorage.accessToken
-        console.log('TESTING: ', method, ' ', authorization)
-        fetch(`https://api.iwara.tv/video/${obj.idVideo}/like`, {
-          method: method,
-          headers: {
-            'Authorization': authorization
-          }
-        }).then(() => {
-          fetch(`https://api.iwara.tv/playlist/${obj.idPlaylist}/${obj.idVideo}`, {
-            method: method,
-            headers: {
-              'Authorization': authorization
-            }
-          })
-        })
-      })
-    }
-    const label = document.createElement('label');
-    label.setAttribute('for', checkboxText);
-    label.textContent = checkboxText;
-
-    checkboxContainer.appendChild(checkbox);
-    checkboxContainer.appendChild(label);
-
-    blackBox.appendChild(checkboxContainer);
-  });
-
-  // Append black box to the container
-  container.appendChild(blackBox);
-
-  // Add the container to the body
-  document.body.appendChild(container);
+    closeButton.style.color = 'white';
+    closeButton.style.fontSize = '24px';
+    closeButton.style.fontWeight = 'bold';
+    closeButton.style.cursor = 'pointer';
+    closeButton.style.width = '30px';
+    closeButton.style.height = '30px';
+    closeButton.style.borderRadius = '50%';
+    closeButton.style.display = 'flex';
+    closeButton.style.justifyContent = 'center';
+    closeButton.style.alignItems = 'center';
+    closeButton.style.outline = 'none';
+    closeButton.style.boxShadow = '0 0 3px rgba(0, 0, 0, 0.3)';
+    closeButton.style.transition = 'background-color 0.3s';
+    
+    // Event listener for close button
+    closeButton.addEventListener('click', () => {
+      container.remove();
+    });
+    
+    // Mouse hover effect for close button
+    closeButton.addEventListener('mouseenter', () => {
+      closeButton.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+    });
+    
+    closeButton.addEventListener('mouseleave', () => {
+      closeButton.style.backgroundColor = 'transparent';
+    });
+    
+    // Append close button to the black box
+    blackBox.appendChild(closeButton);
+    
+    // Create checkboxes
+    
+    checkboxes.forEach(async (obj) => {
+        let checkboxText = '';
+        const checkboxContainer = document.createElement('div');
+        checkboxContainer.style.display = 'flex';
+        checkboxContainer.style.alignItems = 'center';
+        if(isIwara){
+            checkboxText = obj.title;
+        }
+        
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = checkboxText;
+        checkbox.checked = false;
+        if(isIwara && obj.isAdded){
+            checkbox.checked = true;
+        }
+        if(isIwara){
+            checkboxContainer.addEventListener('mousedown', async () => {
+                let method = checkbox.checked ? 'delete' : 'post'
+                const authorization =  'Bearer ' +  localStorage.accessToken
+                console.log('TESTING: ', method, ' ', authorization)
+                fetch(`https://api.iwara.tv/video/${obj.idVideo}/like`, {
+                    method: method,
+                    headers:{
+                       'Authorization': authorization
+                    }
+                }).then(() => {
+                    fetch(`https://api.iwara.tv/playlist/${obj.idPlaylist}/${obj.idVideo}`, {
+                        method: method,
+                        headers:{
+                           'Authorization': authorization
+                        }
+                    })
+                })
+            })
+        }
+        const label = document.createElement('label');
+        label.setAttribute('for', checkboxText);
+        label.textContent = checkboxText;
+        
+        checkboxContainer.appendChild(checkbox);
+        checkboxContainer.appendChild(label);
+        
+        blackBox.appendChild(checkboxContainer);
+    });
+    
+    // Append black box to the container
+    container.appendChild(blackBox);
+    
+    // Add the container to the body
+    document.body.appendChild(container);
 }
-function mouseOver(element) {
-  let event = new MouseEvent('mouseover', {
-    'view': window,
-    'bubbles': true,
-    'cancelable': true
-  });
-
-  element.dispatchEvent(event);
+function mouseOver(element){
+    let event = new MouseEvent('mouseover', {
+      'view': window,
+      'bubbles': true,
+      'cancelable': true
+    });
+    
+    element.dispatchEvent(event);
 }
-function mouseOut(element) {
-  let event = new MouseEvent('mouseout', {
-    'view': window,
-    'bubbles': true,
-    'cancelable': true
-  });
-
-  element.dispatchEvent(event);
+function mouseOut(element){
+    let event = new MouseEvent('mouseout', {
+      'view': window,
+      'bubbles': true,
+      'cancelable': true
+    });
+    
+    element.dispatchEvent(event);
 }
-function clickLikeButtonYoutube() {
-  document.querySelector("#segmented-like-button > ytd-toggle-button-renderer > yt-button-shape > button > yt-touch-feedback-shape > div").click();
+function clickLikeButtonYoutube(){
+    document.querySelector("#segmented-like-button > ytd-toggle-button-renderer > yt-button-shape > button > yt-touch-feedback-shape > div").click();
 }
-function checkSaveButtonTextOnYoutube(text) {
-  return text.indexOf('lưu') != -1 || text.indexOf('save') != -1 || text.indexOf('playlist') != -1 || text.indexOf('danh sách phát') != -1
+function checkSaveButtonTextOnYoutube(text){
+    return text.indexOf('lưu') != -1 || text.indexOf('save') != -1 || text.indexOf('playlist') != -1 || text.indexOf('danh sách phát') != -1
 }
-function clickPlaylistButtonYoutube() {
-  let outBtns = Array.from(document.querySelectorAll("#flexible-item-buttons > ytd-button-renderer button"));
-  let isOut = false;
-  for (let btn of outBtns) {
-    const text = btn.ariaLabel.trim().toLowerCase()
-    if (checkSaveButtonTextOnYoutube(text)) {
-      btn.click();
-      isOut = true;
-      break;
+function clickPlaylistButtonYoutube(){
+    let outBtns = Array.from(document.querySelectorAll("#flexible-item-buttons > ytd-button-renderer button"));
+    let isOut = false;
+    for(let btn of outBtns){
+        const text = btn.ariaLabel.trim().toLowerCase()
+        if(checkSaveButtonTextOnYoutube(text)){
+            btn.click();
+            isOut = true;
+            break;
+        }
     }
-  }
-  if (isOut) return;
-  document.querySelector("#button-shape > button").click()
-  let btns = document.querySelectorAll('.ytd-popup-container ytd-menu-service-item-renderer');
-  for (let btn of btns) {
-    const text = btn.innerText.trim().toLowerCase()
-    if (checkSaveButtonTextOnYoutube(text)) {
-      btn.click();
-      break;
+    if(isOut) return;
+    document.querySelector("#button-shape > button").click()
+    let btns = document.querySelectorAll('.ytd-popup-container ytd-menu-service-item-renderer');
+    for(let btn of btns){
+        const text = btn.innerText.trim().toLowerCase()
+        if(checkSaveButtonTextOnYoutube(text)){
+            btn.click();
+            break;
+        }
     }
-  }
 }
 function preventKey(key) {
   document.addEventListener('keydown', function(event) {
@@ -529,114 +531,114 @@ function preventKey(key) {
     }
   });
 }
-function getIdIwara(url) {
-  return url.match(/video\/.+(\/)?/)[0].replace(/video\/|\/.+/g, '')
+function getIdIwara(url){
+    return url.match(/video\/.+(\/)?/)[0].replace(/video\/|\/.+/g, '')
 }
-api.mapkey('sk', 'Click like button', function() {
-  clickLikeButtonYoutube()
-}, { domain: /youtube.com/ig })
-api.mapkey('sp', 'Click save playlist button', function() {
-  clickPlaylistButtonYoutube();
-}, { domain: /youtube.com/ig })
-api.mapkey('sv', 'Click like and save playlist button', function() {
-  clickLikeButtonYoutube()
-  clickPlaylistButtonYoutube();
-}, { domain: /youtube.com/ig })
-api.mapkey('sk', 'Like and show playlist', async function() {
-  api.Hints.create("*[href*='video/']", async function(element) {
-    let checkBoxes = [];
-    localStorage.accessToken = await getAccessTokenFromIwara()
-    const idVideo = getIdIwara(element.href);
-    await fetch('https://api.iwara.tv/light/playlists?id=' + idVideo, {
-      method: 'get',
+api.mapkey('sk', 'Click like button', function(){
+    clickLikeButtonYoutube()
+}, {domain: /youtube.com/ig})
+api.mapkey('sp', 'Click save playlist button', function(){
+    clickPlaylistButtonYoutube();
+}, {domain: /youtube.com/ig})
+api.mapkey('sv', 'Click like and save playlist button', function(){
+    clickLikeButtonYoutube()
+    clickPlaylistButtonYoutube();
+}, {domain: /youtube.com/ig})
+api.mapkey('sk', 'Like and show playlist', async function(){
+    api.Hints.create("*[href*='video/']", async function(element){
+        let checkBoxes = [];
+        localStorage.accessToken = await getAccessTokenFromIwara()
+        const idVideo = getIdIwara(element.href);
+        await fetch('https://api.iwara.tv/light/playlists?id='+idVideo, {
+            method:'get',
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.accessToken
+            }
+        }).then(res => res.json()).then(data => {
+            for(let obj of data){
+                checkBoxes = [...checkBoxes, {
+                    idPlaylist: obj.id,
+                    idVideo,
+                    isAdded: obj.added,
+                    title: obj.title,
+                }]
+            }
+        })
+        createCheckBoxes(checkBoxes, true)
+    })
+}, {domain: /iwara/ig})
+api.mapkey('sv', 'Click like and save playlist button', async  function(){
+    let btns = document.querySelectorAll('button');
+    for(let btn of btns){
+        const text = btn.innerText.toLowerCase();
+        if(text == "add to" || text == 'like'){
+            btn.click()
+            btn.scrollIntoViewIfNeeded()
+        }
+    }
+}, {domain: /iwara.tv\/video/ig})
+function fetchData(url){
+    return fetch(encodeURI(url)).then(res => res.json()).then(data => data).catch(error => {api.Front.showPopup('Error: '+error)});
+}
+api.mapkey('sd', 'Open random video', async function(){
+    const idPlaylist = document.location.href.match(/playlist\/.+/)[0].replace(/playlist|\//ig, '');
+    let pageTotal = 0;
+    const vids = []
+    let json = 0;
+    let maxVids = 0;
+    for(let i = 0; i <= json; i++){
+        json = await fetchData(`https://api.iwara.tv/playlist/${idPlaylist}?page=${i}`)
+        vids.push(...json.results);
+        maxVids = json.count;
+        json = json.count/json.limit
+    }
+    console.log(vids);
+    const ranNumber = Math.floor(Math.random()*maxVids);
+    console.log(ranNumber)
+    window.open("https://iwara.tv/video/"+vids[ranNumber].id);
+}, {domain: /iwara.tv/ig})
+function getJSON(url, callback, xVersionHeader = '', headers ={}) {
+    if(xVersionHeader){
+        headers = {
+            ...headers,
+            'x-version': xVersionHeader,
+        }
+    }
+    fetch(url, {
       headers: {
-        'Authorization': 'Bearer ' + localStorage.accessToken
-      }
-    }).then(res => res.json()).then(data => {
-      for (let obj of data) {
-        checkBoxes = [...checkBoxes, {
-          idPlaylist: obj.id,
-          idVideo,
-          isAdded: obj.added,
-          title: obj.title,
-        }]
+         "Authorization": "Bearer " + localStorage.token,
+        ...headers
       }
     })
-    createCheckBoxes(checkBoxes, true)
-  })
-}, { domain: /iwara/ig })
-api.mapkey('sv', 'Click like and save playlist button', async function() {
-  let btns = document.querySelectorAll('button');
-  for (let btn of btns) {
-    const text = btn.innerText.toLowerCase();
-    if (text == "add to" || text == 'like') {
-      btn.click()
-      btn.scrollIntoViewIfNeeded()
-    }
-  }
-}, { domain: /iwara.tv\/video/ig })
-function fetchData(url) {
-  return fetch(encodeURI(url)).then(res => res.json()).then(data => data).catch(error => { api.Front.showPopup('Error: ' + error) });
-}
-api.mapkey('sd', 'Open random video', async function() {
-  const idPlaylist = document.location.href.match(/playlist\/.+/)[0].replace(/playlist|\//ig, '');
-  let pageTotal = 0;
-  const vids = []
-  let json = 0;
-  let maxVids = 0;
-  for (let i = 0; i <= json; i++) {
-    json = await fetchData(`https://api.iwara.tv/playlist/${idPlaylist}?page=${i}`)
-    vids.push(...json.results);
-    maxVids = json.count;
-    json = json.count / json.limit
-  }
-  console.log(vids);
-  const ranNumber = Math.floor(Math.random() * maxVids);
-  console.log(ranNumber)
-  window.open("https://iwara.tv/video/" + vids[ranNumber].id);
-}, { domain: /iwara.tv/ig })
-function getJSON(url, callback, xVersionHeader = '', headers = {}) {
-  if (xVersionHeader) {
-    headers = {
-      ...headers,
-      'x-version': xVersionHeader,
-    }
-  }
-  fetch(url, {
-    headers: {
-      "Authorization": "Bearer " + localStorage.token,
-      ...headers
-    }
-  })
     .then(response => response.json())
-    .then(data => callback(null, data))
-  return;
-  // var xhr = new XMLHttpRequest();
-  // xhr.open('GET', url, true);
-  // xhr.responseType = 'json';
-  // xhr.setRequestHeader('x-version', xVersionHeader);
+    .then(data => callback(null,data))
+    return;
+    // var xhr = new XMLHttpRequest();
+    // xhr.open('GET', url, true);
+    // xhr.responseType = 'json';
+    // xhr.setRequestHeader('x-version', xVersionHeader);
 
-  // xhr.onload = function() {
-  //   var status = xhr.status;
-  //   if (status === 200) {
-  //     callback(null, xhr.response);
-  //   } else {
-  //     callback(status, xhr.response);
-  //   }
-  // };
-  // xhr.send();
+    // xhr.onload = function() {
+    //   var status = xhr.status;
+    //   if (status === 200) {
+    //     callback(null, xhr.response);
+    //   } else {
+    //     callback(status, xhr.response);
+    //   }
+    // };
+    // xhr.send();
 };
 function getHTML(url, callback) {
-  fetch(url)
-    .then(res => res.text())
-    .then(data => {
-      const parser = new DOMParser();
-      const htmlDocument = parser.parseFromString(data, 'text/html');
-      callback(null, htmlDocument);
-    })
-    .catch(error => {
-      callback(error, null);
-    });
+    fetch(url)
+  .then(res => res.text())
+  .then(data => {
+    const parser = new DOMParser();
+    const htmlDocument = parser.parseFromString(data, 'text/html');
+    callback(null, htmlDocument);
+  })
+  .catch(error => {
+    callback(error, null);
+  });
 };
 async function sha1(str) {
   const encoder = new TextEncoder();
@@ -647,308 +649,308 @@ async function sha1(str) {
   return hashHex;
 }
 const vidResolution = [
-  'Source',
-  '540p',
-  '360p'
+    'Source',
+    '540p',
+    '360p'
 ]
-async function getIwaraVideoTitle(id, index) {
-  return await fetch(`https://api.iwara.tv/video/${id}`)
+async function getIwaraVideoTitle(id, index){
+    return await fetch(`https://api.iwara.tv/video/${id}`)
     .then((response) => response.json())
     .then(data => data.title);
 }
-function getIwaraVideoId(url) {
-  return url.match(/(video\/.+\/)|(video\/.+)/)[0].replace(/video|\//g, '');
+function getIwaraVideoId(url){
+    return url.match(/(video\/.+\/)|(video\/.+)/)[0].replace(/video|\//g, '');
 }
-function copyIwaraVideo(id, index, isPlayWithMpv) {
-  function changeColorForPlayingUrl(id) {
-    Array.from(document.querySelectorAll('div.videoTeaser>a')).forEach(el => {
-      if (el.href.includes(id)) {
-        el.parentElement.style.backgroundColor = 'blue';
-      }
-    })
-  }
-  changeColorForPlayingUrl(id)
-  function getFileId(url) {
-    return url.match(/file\/.+\?/g)[0].replace(/file\/|\?/g, '')
-  }
-  function getExpire(url) {
-    return url.match("expires=.+&")[0].replace(/expires=|&/g, '');
-  }
-  getJSON(`https://api.iwara.tv/video/${id}`, async (status, res) => {
-    if (status) {
-      api.Front.showBanner('Error: ', status);
-      return;
+function copyIwaraVideo(id, index, isPlayWithMpv){
+    function changeColorForPlayingUrl(id){
+        Array.from(document.querySelectorAll('div.videoTeaser>a')).forEach(el => {
+            if(el.href.includes(id)){
+                el.parentElement.style.backgroundColor = 'blue';
+            }
+        })
     }
-    if (res.message && (res?.message?.trim()?.toLowerCase()?.includes('notfound') || res?.message?.trim()?.toLowerCase()?.includes('private'))) {
-      api.Front.showPopup(res.message + ' for ' + id)
-      api.Clipboard.write('https://www.iwara.tv/' + id)
-      return;
+    changeColorForPlayingUrl(id)
+    function getFileId(url){
+        return url.match(/file\/.+\?/g)[0].replace(/file\/|\?/g, '')
     }
-    else if (res.message) {
-      copyIwaraVideo(id, index, isPlayWithMpv);
-      return;
+    function getExpire(url){
+        return url.match("expires=.+&")[0].replace(/expires=|&/g, '');
     }
-    if (res.embedUrl && !res.fileUrl) {
-      api.Clipboard.write(res.embedUrl);
-      return;
-    }
-    const fileUrl = res.fileUrl;
-    const fileId = getFileId(fileUrl)
-    if (!fileId || !fileUrl) {
-      api.Front.showPopup('Not found requrement');
-      return;
-    }
-    console.log((fileId + '_' + getExpire(fileUrl) + '_5nFp9kmbNnHdAFhaqMvt'))
-    getJSON(fileUrl, (status2, res2) => {
-      const json = res2;
-      console.log(json)
-      let i = json.length - 1;
-      for (let j = 0; j < json.length; j++) {
-        if (vidResolution[vidIndex].toLowerCase().indexOf(json[j].name.toLowerCase()) != -1) {
-          i = j;
-          break;
+    getJSON(`https://api.iwara.tv/video/${id}`, async (status, res)=>{
+        if(status){
+            api.Front.showBanner('Error: ', status);
+            return;
         }
-      }
-      const uri = 'https:' + json[i].src.download;
-      api.Clipboard.write(uri)
-      if (isPlayWithMpv) {
-        api.Front.showBanner('Opening mpv...');
-        runWithMpv(uri, 'https://www.iwara.tv/video/' + id);
-      }
-    }, await sha1(fileId + '_' + getExpire(fileUrl) + '_5nFp9kmbNnHdAFhaqMvt'))
-  })
+        if(res.message && (res?.message?.trim()?.toLowerCase()?.includes('notfound') || res?.message?.trim()?.toLowerCase()?.includes('private'))){
+            api.Front.showPopup(res.message+' for '+ id)
+            api.Clipboard.write('https://www.iwara.tv/'+id)
+            return;
+        }
+        else if(res.message){
+            copyIwaraVideo(id, index, isPlayWithMpv);
+            return;
+        }
+        if(res.embedUrl && !res.fileUrl){
+            api.Clipboard.write(res.embedUrl);
+            return;
+        }
+        const fileUrl = res.fileUrl;
+        const fileId = getFileId(fileUrl)
+        if(!fileId||!fileUrl) {
+            api.Front.showPopup('Not found requrement');
+            return;
+        }
+      console.log((fileId+'_'+getExpire(fileUrl)+'_5nFp9kmbNnHdAFhaqMvt'))
+        getJSON(fileUrl, (status2, res2) => {
+            const json = res2;
+            console.log(json)
+            let i = json.length-1;
+            for(let j = 0; j < json.length; j++){
+                if(vidResolution[vidIndex].toLowerCase().indexOf(json[j].name.toLowerCase()) != -1){
+                    i = j;
+                    break;
+                }
+            }
+            const uri = 'https:'+json[i].src.download;
+            api.Clipboard.write(uri)
+            if(isPlayWithMpv){
+                api.Front.showBanner('Opening mpv...');
+                runWithMpv(uri, 'https://www.iwara.tv/video/'+id);
+            }
+        }, await sha1(fileId+'_'+getExpire(fileUrl)+'_5nFp9kmbNnHdAFhaqMvt'))
+    })
 }
 
-function convertStringToQueryString(s) {
-  console.log(s)
-  return s.replaceAll(' ', '%20')
+function convertStringToQueryString(s){
+    console.log(s)
+    return s.replaceAll(' ', '%20')
 }
 let originalTitle
-function GoToMmdFansVid(title, isSearching = true) {
-  if (isSearching) {
-    api.Front.showBanner('Searching...')
-    originalTitle = title;
-  };
-  getHTML(encodeURI('https://mmdfans.net/?query=' + title), function(s, res) {
-    if (s) {
-      api.Front.showPopup('Error:' + s)
-      return;
-    }
-    const doc = res;
-    const videos = doc.querySelectorAll('.mdui-col > a')
-    console.log(doc)
-    console.log(videos)
-    if (!videos || videos.length < 1) {
-      const titleBackup = title;
-      title = title.replace(/ [^ ]*$/, "")
-      if (!title || titleBackup == title) {
-        api.Front.showPopup("Not found video")
-        return;
-      }
-      api.Front.showBanner('Not found, searching ' + title)
-      GoToMmdFansVid(title, false)
-      return;
-    }
-    let index = 0;
-    if (videos.length > 1) {
-      api.Front.showBanner('Result have above 1 video');
-      const vids = Array.from(doc.querySelectorAll('.mdui-grid-tile'))
-      for (let i in vids) {
-        if (vids[i].innerText.indexOf(originalTitle) != -1) {
-          index = i;
+function GoToMmdFansVid(title, isSearching = true){
+    if(isSearching) {
+        api.Front.showBanner('Searching...')
+        originalTitle = title;
+    } ;
+    getHTML(encodeURI('https://mmdfans.net/?query='+title), function(s, res){
+        if(s){
+            api.Front.showPopup('Error:'+s)
+            return;
         }
-      }
-    }
-
-    let openUrl = "https://mmdfans.net/" + videos[index].href.match(/mmd\/.+/ig)[0];
-    console.log(openUrl)
-    window.open(openUrl);
-
-  })
+        const doc = res;
+        const videos = doc.querySelectorAll('.mdui-col > a')
+        console.log(doc)
+        console.log(videos)
+        if(!videos || videos.length < 1){
+            const titleBackup = title;
+            title = title.replace(/ [^ ]*$/, "")
+            if(!title || titleBackup == title) {
+                api.Front.showPopup("Not found video")
+                return;
+            }
+            api.Front.showBanner('Not found, searching ' + title)
+            GoToMmdFansVid(title, false)
+            return;
+        }
+        let index = 0;
+        if(videos.length > 1){
+            api.Front.showBanner('Result have above 1 video');
+            const vids = Array.from(doc.querySelectorAll('.mdui-grid-tile'))
+            for(let i in vids){
+                if(vids[i].innerText.indexOf(originalTitle) != -1){
+                    index = i;
+                }
+            }
+        }
+        
+        let openUrl = "https://mmdfans.net/" + videos[index].href.match(/mmd\/.+/ig)[0];
+        console.log(openUrl)
+        window.open(openUrl);
+        
+    })
 }
-async function runWithMpv(url, pageUrl = null) {
-  fetch('http://localhost:9789', {
-    method: 'post',
-    body: new URLSearchParams({ url, pageUrl })
-  }).catch(err => console.error(err))
+async function runWithMpv(url, pageUrl = null){
+    fetch('http://localhost:9789', {
+        method:'post',
+        body: new URLSearchParams({url, pageUrl})
+    }).catch(err => console.error(err))
 }
-function convertStringToIwaraQuery(s) {
-  return s.replaceAll(' ', '+');
+function convertStringToIwaraQuery(s){
+    return s.replaceAll(' ', '+');
 }
-function copyOreno3dAndMmdTube(url) {
-  getHTML(url, (stat, res) => {
-    const aTag = res.querySelector('[href*="iwara.tv/video"]')
-    copyIwaraVideo(aTag.href.match(/video\/.+(\/)?/)[0].replace(/video\/|\/.+/g, ''), vidIndex, true);
-  })
+function copyOreno3dAndMmdTube(url){
+    getHTML(url, (stat, res) => {
+        const aTag = res.querySelector('[href*="iwara.tv/video"]')
+        copyIwaraVideo(aTag.href.match(/video\/.+(\/)?/)[0].replace(/video\/|\/.+/g, ''), vidIndex, true);
+    })
 }
 let selectorTitle = '.page-video__details > .text'
-api.mapkey('cv', 'Go to mmdfans with this video', async function() {
-  const el = document.querySelector(selectorTitle);
-  if (el) {
-    GoToMmdFansVid(el.innerText);
-    return;
-  }
-  const title = await getIwaraVideoTitle(getIwaraVideoId(document.location.href))
-  console.log(title)
-  GoToMmdFansVid(title);
-}, { domain: /iwara.tv/ig })
-api.mapkey('cv', 'Open by iwara', async function() {
-  let fetchData = function fetchData(url) {
-    return fetch(encodeURI(url)).then(res => res.json()).then(data => data).catch(error => { api.Front.showPopup('Error: ' + error) });
-  }
-  api.Front.showBanner("Searching...")
-  const title = document.querySelector('.title').innerText
-  const author = document.querySelector('[href*="query=author"]').innerText
-  const results = (await fetchData('https://api.iwara.tv/search?type=user&query=' + author)).results;
-  let pageTotal = 0;
-  for (let i = 0; i <= pageTotal; i++) {
-    const req = 'https://api.iwara.tv/search?type=video&query=' + title + "&page=" + i;
-    const vidObject = (await fetchData(req));
-    let vids = vidObject.results;
-    pageTotal = Math.floor(vidObject.count / vidObject.limit);
-    for (let vid of vids) {
-      if (vid.title.toLowerCase().trim().indexOf(title.toLowerCase().trim()) != -1) {
-        window.open('https://www.iwara.tv/video/' + vid.id);
+api.mapkey('cv', 'Go to mmdfans with this video', async function(){
+    const el = document.querySelector(selectorTitle);
+    if(el){
+        GoToMmdFansVid(el.innerText);
         return;
-      }
     }
-  }
-  let user = {};
-  for (let o of results) {
-    if (author.indexOf(o.name) != -1) {
-      user = o;
-      break;
+    const title= await getIwaraVideoTitle(getIwaraVideoId(document.location.href))
+    console.log(title)
+    GoToMmdFansVid(title);
+}, {domain: /iwara.tv/ig})
+api.mapkey('cv', 'Open by iwara', async function(){
+    let fetchData= function fetchData(url){
+        return fetch(encodeURI(url)).then(res => res.json()).then(data => data).catch(error => {api.Front.showPopup('Error: '+error)});
     }
-  }
-  pageTotal = 0;
-  for (let i = 0; i <= pageTotal; i++) {
-    const userObject = await fetchData('https://api.iwara.tv/videos?page=' + i + '&sort=date&user=' + user.id);
-    const videos = userObject.results;
-    pageTotal = Math.floor(userObject.count / userObject.limit);
-    for (let vid of videos) {
-      if (vid.title.toLowerCase().trim().indexOf(title.toLowerCase().trim()) != -1) {
-
-        window.open("https://iwara.tv/video/" + vid.id);
-        return;
-      }
+    api.Front.showBanner("Searching...")
+    const title = document.querySelector('.title').innerText
+    const author = document.querySelector('[href*="query=author"]').innerText
+    const results = (await fetchData('https://api.iwara.tv/search?type=user&query=' + author)).results;
+    let pageTotal = 0;
+    for(let i = 0; i <= pageTotal; i++){
+        const req = 'https://api.iwara.tv/search?type=video&query=' + title + "&page="+i;
+        const vidObject = (await fetchData(req));
+        let vids = vidObject.results;
+        pageTotal = Math.floor(vidObject.count/vidObject.limit);
+        for(let vid of vids){
+            if(vid.title.toLowerCase().trim().indexOf(title.toLowerCase().trim()) != -1){
+                window.open('https://www.iwara.tv/video/'+vid.id);
+                return;
+            }
+        }
     }
-  }
-  api.Front.showPopup("Not found")
-  // getHTML('https://ecchi.iwara.tv/search?query='+convertStringToIwaraQuery(document.querySelector(selectorTitle).innerText), function(s, res){
-  //     window.open(res.querySelector('.view-content .title a').href)
-  // })
-}, { domain: /mmdfans/ig })
-api.mapkey('cs', 'Open by iwara', async function() {
-  try {
-    const id = document.querySelector('[href*="https://ecchi.iwara"]').href.match(/(video|videos)\/.+/i)[0].replace(/(.+\/)/, '');
-    if (id) {
-      window.open('https://iwara.tv/video/' + id);
-      return;
+    let user = {};
+    for(let o of results){
+        if(author.indexOf(o.name) != -1){
+            user = o;
+            break;
+        }
     }
-  }
-  catch {
-    window.open(document.querySelector('[href*="iwara.tv/video"]').href);
-  }
-}, { domain: /erommdtube.com|oreno3d/ig })
-api.mapkey('cv', 'Open by mmdfans', async function() {
-  const title = document.querySelector('h1.video-h1').innerText;
-  console.log(title)
-  GoToMmdFansVid(title);
-}, { domain: /mmdtube|oreno3d/ig })
-api.mapkey('co', 'copy source video link from mmdfans', function() {
-  const vid = document.querySelector('*[src*="cdn."][src*="video"]');
-  api.Clipboard.write(vid.src);
-  runWithMpv(vid.src, document.location.href)
-}, { domain: /mmdfans/ig })
-api.mapkey('sm', 'Open urls in clipboard to mpv', async function() {
-  api.Clipboard.read(function(res) {
-    const urls = res.data.split('\n');
-    for (const url of urls) {
-      if (url.includes('iwara')) {
-        copyIwaraVideo(url.match(/video\/.+(\/)?/)[0].replace(/video\/|\/.+/g, ''), vidIndex, true);
-      }
-      else if (url.includes('oreno3d') || url.includes('mmdtube')) {
-        copyOreno3dAndMmdTube(url)
-      }
-      else {
-        runWithMpv(url);
-      }
+    pageTotal = 0;
+    for(let i = 0; i<=pageTotal;i++){
+        const userObject = await fetchData('https://api.iwara.tv/videos?page='+i+'&sort=date&user='+user.id);
+        const videos = userObject.results;
+        pageTotal = Math.floor(userObject.count/userObject.limit);
+        for(let vid of videos){
+            if(vid.title.toLowerCase().trim().indexOf(title.toLowerCase().trim()) != -1){
+                
+                window.open("https://iwara.tv/video/"+vid.id);
+                return;
+            }
+        }
     }
-  })
-})
-api.mapkey('sr', 'copy source video link from youtube', async function() {
-  api.Hints.create("*[href]", function(element) {
-    api.Clipboard.write(element.href);
-    runWithMpv(element.href);
-  })
-}, { domain: /youtube/ig })
-api.mapkey('sr', 'copy source video link from iwara', async function() {
-  api.Hints.create("*[href*='video/']", function(element) {
-    copyIwaraVideo(getIdIwara(element.href), vidIndex, true);
-  })
-}, { domain: /iwara/ig })
-api.mapkey('sr', 'copy source video link from oreno3d and erommdtube', async function() {
-  api.Hints.create("*[href*='movie']", function(element) {
-    copyOreno3dAndMmdTube(element.href);
-  })
-}, { domain: /oreno3d|mmdtube/ig })
-api.mapkey('co', 'copy source video link from oreno3d and erommdtube', async function() {
-  copyIwaraVideo(document.querySelector('[href*="iwara.tv/video"]').href.match(/video\/.+(\/)?/)[0].replace(/video\/|\/.+/g, ''), vidIndex, true);
-}, { domain: /oreno3d|mmdtube/ig })
-api.mapkey('co', 'copy source video link from iwara', async function() {
-  let vid = document.querySelectorAll('a[href*="iwara.tv/download"]');
-  if (vid.length > 0) {
-    vid = vid[vidIndex];
-    api.Clipboard.write(vid.href);
-    runWithMpv(vid.href, document.location.href);
-    return;
-  }
-  copyIwaraVideo(document.location.href.match(/video\/.+(\/)?/)[0].replace(/video\/|\/.+/g, ''), vidIndex);
-  // const id = window.location.href.match(/videos\/.+$/)[0].replace('videos/', '')
-  // getJSON(`https://ecchi.iwara.tv/api/video/${id}`, (status, res)=>{
-  //     if(status){
-  //         api.Front.showBanner('Error: ', status);
-  //         return;
-  //     }
-  //     const json = res;
-  //     let i = json.length <= 2 && vidIndex >= 2 ? 1 : vidIndex;
-  //     const {uri} = json[vidIndex];
-  //     api.Clipboard.write('https:'+uri);
-  //     api.Front.showBanner('Copied ', uri)
-  // })
-}, { domain: /iwara.tv/ig })
-api.mapkey('<Ctrl-h>', 'Mouse Over', function() {
-  api.Hints.create("", function(element) {
-    Array.from(document.querySelectorAll('.name')).forEach(a => {
-      mouseOut(a);
+    api.Front.showPopup("Not found")
+    // getHTML('https://ecchi.iwara.tv/search?query='+convertStringToIwaraQuery(document.querySelector(selectorTitle).innerText), function(s, res){
+    //     window.open(res.querySelector('.view-content .title a').href)
+    // })
+}, {domain: /mmdfans/ig})
+api.mapkey('cs', 'Open by iwara', async function(){
+    try{
+        const id = document.querySelector('[href*="https://ecchi.iwara"]').href.match(/(video|videos)\/.+/i)[0].replace(/(.+\/)/, '');
+        if(id){
+            window.open('https://iwara.tv/video/'+id);
+            return;
+        }
+    }
+    catch{
+        window.open(document.querySelector('[href*="iwara.tv/video"]').href);
+    }
+}, {domain: /erommdtube.com|oreno3d/ig})
+api.mapkey('cv', 'Open by mmdfans', async function(){
+    const title = document.querySelector('h1.video-h1').innerText;
+    console.log(title)
+    GoToMmdFansVid(title);
+}, {domain: /mmdtube|oreno3d/ig})
+api.mapkey('co', 'copy source video link from mmdfans', function(){
+    const vid = document.querySelector('*[src*="cdn."][src*="video"]');
+    api.Clipboard.write(vid.src);
+    runWithMpv(vid.src, document.location.href)
+}, {domain: /mmdfans/ig})
+api.mapkey('sm', 'Open urls in clipboard to mpv', async function(){
+    api.Clipboard.read(function(res){
+        const urls = res.data.split('\n');
+        for(const url of urls){
+            if(url.includes('iwara')){
+                copyIwaraVideo(url.match(/video\/.+(\/)?/)[0].replace(/video\/|\/.+/g, ''), vidIndex, true);
+            }
+            else if (url.includes('oreno3d') || url.includes('mmdtube')){
+                copyOreno3dAndMmdTube(url)
+            }
+            else{
+                runWithMpv(url);
+            }
+        }
     })
-    mouseOver(element);
-  }, { multipleHits: true })
-}, { domain: /nhentai/ig })
-api.mapkey('<Ctrl-h>', 'Mouse Over', function() {
-  api.Hints.create("", function(element) {
-    mouseOver(element);
-  }, { multipleHits: true })
-}, { domain: /iwara.tv/ig })
-api.mapkey('<Ctrl-h>', 'Mouse Over', function() {
-  api.Hints.create("", function(element) {
-    mouseOver(element);
-  })
-}, { domain: /^(?!.*(iwara.tv||nhentai))/ig })
-api.mapkey('<Ctrl-j>', 'Mouse Out', function() {
-  Array.from(document.querySelectorAll('.name')).forEach(a => {
-    mouseOut(a);
-  })
-}, { domain: /nhentai/ig })
-api.mapkey('<Ctrl-j>', 'Mouse Out', function() {
-  api.Hints.create("", function(element) {
-    mouseOut(element);
-  })
-}, { domain: /^(?!.*nhentai)/ig })
-api.mapkey('cc', 'Change video index in iwara', function() {
-  vidIndex = vidIndex == 2 ? 0 : vidIndex + 1;
-  api.Front.showBanner('Change index to ' + vidIndex);
-}, { domain: /iwara.tv/ig })
+})
+api.mapkey('sr', 'copy source video link from youtube', async function(){
+    api.Hints.create("*[href]", function(element){
+        api.Clipboard.write(element.href);
+        runWithMpv(element.href);
+    })
+}, {domain: /youtube/ig})
+api.mapkey('sr', 'copy source video link from iwara', async function(){
+    api.Hints.create("*[href*='video/']", function(element){
+        copyIwaraVideo(getIdIwara(element.href), vidIndex, true);
+    })
+}, {domain: /iwara/ig})
+api.mapkey('sr', 'copy source video link from oreno3d and erommdtube', async function(){
+    api.Hints.create("*[href*='movie']", function(element){
+        copyOreno3dAndMmdTube(element.href);
+    })
+}, {domain: /oreno3d|mmdtube/ig})
+api.mapkey('co', 'copy source video link from oreno3d and erommdtube', async function(){
+    copyIwaraVideo(document.querySelector('[href*="iwara.tv/video"]').href.match(/video\/.+(\/)?/)[0].replace(/video\/|\/.+/g, ''), vidIndex, true);
+}, {domain: /oreno3d|mmdtube/ig})
+api.mapkey('co', 'copy source video link from iwara', async function(){
+    let vid = document.querySelectorAll('a[href*="iwara.tv/download"]');
+    if(vid.length > 0){
+        vid = vid[vidIndex];
+        api.Clipboard.write(vid.href);
+        runWithMpv(vid.href, document.location.href);
+        return;
+    }
+    copyIwaraVideo(document.location.href.match(/video\/.+(\/)?/)[0].replace(/video\/|\/.+/g, ''), vidIndex);
+    // const id = window.location.href.match(/videos\/.+$/)[0].replace('videos/', '')
+    // getJSON(`https://ecchi.iwara.tv/api/video/${id}`, (status, res)=>{
+    //     if(status){
+    //         api.Front.showBanner('Error: ', status);
+    //         return;
+    //     }
+    //     const json = res;
+    //     let i = json.length <= 2 && vidIndex >= 2 ? 1 : vidIndex;
+    //     const {uri} = json[vidIndex];
+    //     api.Clipboard.write('https:'+uri);
+    //     api.Front.showBanner('Copied ', uri)
+    // })
+}, {domain: /iwara.tv/ig})
+api.mapkey('<Ctrl-h>', 'Mouse Over', function(){
+    api.Hints.create("", function(element){
+        Array.from(document.querySelectorAll('.name')).forEach(a => {
+            mouseOut(a);
+        })
+        mouseOver(element);
+    }, {multipleHits: true})
+}, {domain: /nhentai/ig})
+api.mapkey('<Ctrl-h>', 'Mouse Over', function(){
+    api.Hints.create("", function(element){
+        mouseOver(element);
+    }, {multipleHits: true})
+}, {domain: /iwara.tv/ig})
+api.mapkey('<Ctrl-h>', 'Mouse Over', function(){
+    api.Hints.create("", function(element){
+        mouseOver(element);
+    })
+}, {domain: /^(?!.*(iwara.tv||nhentai))/ig})
+api.mapkey('<Ctrl-j>', 'Mouse Out', function(){
+    Array.from(document.querySelectorAll('.name')).forEach(a => {
+        mouseOut(a);
+    })
+}, {domain: /nhentai/ig})
+api.mapkey('<Ctrl-j>', 'Mouse Out', function(){
+    api.Hints.create("", function(element){
+        mouseOut(element);
+    })
+}, {domain: /^(?!.*nhentai)/ig})
+api.mapkey('cc', 'Change video index in iwara', function(){
+    vidIndex = vidIndex == 2 ? 0 : vidIndex + 1;
+    api.Front.showBanner('Change index to ' + vidIndex);
+}, {domain: /iwara.tv/ig})
 api.unmap('d', /pixiv\..+/)
 api.unmap('e', /pixiv\..+/)
 api.unmap('z', /pixiv\..+/)
