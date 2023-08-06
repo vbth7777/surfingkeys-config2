@@ -81,6 +81,44 @@ async function createViewer(idGallery) {
   closeBtn.onclick = () => {
     removeContainerBox();
   }
+  const favoriteBtn = document.createElement('button');
+  favoriteBtn.style.position = 'absolute';
+  favoriteBtn.style.top = '0';
+  favoriteBtn.style.left = '0';
+  favoriteBtn.innerHTML = "Loading...";
+  favoriteBtn.style.backgroundColor = '#ED2553'
+  favoriteBtn.style.border = 'none';
+  favoriteBtn.style.color = '#fff';
+  favoriteBtn.style.fontSize = '1.5rem';
+  favoriteBtn.style.fontWeight = 'bold';
+  favoriteBtn.style.borderRadius = '10px';
+  favoriteBtn.style.padding = '0';
+  favoriteBtn.style.cursor = 'pointer';
+  favoriteBtn.style.margin = '10px';
+  favoriteBtn.style.padding = '10px';
+  favoriteBtn.style.fontSize = '1.4rem';
+  const favoriteMethod = 'favorite'; 
+  const unfavoriteMethod = 'unfavorite'; 
+  favoriteBtn.onclick = () => {
+      const state = favoriteBtn.innerHTML != favoriteMethod ? unfavoriteMethod : favoriteMethod
+      favoriteBtn.disabled = true;
+      
+      fetch('https://nhentai.net/api/gallery/'+idGallery+'/'+state, {
+        method:'post',
+        headers:{
+            "X-Csrftoken":document.cookie.replace(/.+=/g, '')
+        }
+      }).then(res => {
+          favoriteBtn.innerHTML = favoriteBtn.innerHTML == favoriteMethod ? unfavoriteMethod : favoriteMethod;
+          favoriteBtn.disabled = false;
+      })
+  }
+  fetch('https://nhentai.net/g/'+idGallery).then(res => res.text()).then(data => {
+      const parser = new DOMParser();
+      const dom = parser.parseFromString(data, 'text/html');
+      favoriteBtn.innerHTML =dom.querySelector('#favorite').innerText.toLowerCase().includes(unfavoriteMethod) ? unfavoriteMethod : favoriteMethod;
+  })
+  
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
@@ -194,18 +232,41 @@ async function createViewer(idGallery) {
       img.style.objectFit = 'cover';
       img.loading = 'lazy';
       img.onerror = () => {
-          if(img.src.includes('i5')){
+          if(img.src.includes('i5') && img.src.includes('jpg')){
               img.src = img.src.replace('i5', 'i3');
           }
-          else if(img.src.includes('png')){
+          else if(img.src.includes('i3') && img.src.includes('png')){
+              img.src = img.src.replace('png', 'jpg');
+          }
+          else if(img.src.includes('i5') && img.src.includes('png')){
+              img.src = img.src.replace('i5', 'i3');
+          }
+          else if(img.src.includes('i7')&& img.src.includes('png')){
               img.src = img.src.replace('i7', 'i5');
           }
-          else{
+          else if(img.src.includes('jpg')){
               img.src = img.src.replace('jpg', 'png');
           }
       }
       const imgTemp = document.createElement('img');
-      imgTemp.src = img.src.replace('.jpg', 't.jpg').replace('.png', 't.png').replace(/\/\/i\d+/g, '//t3');
+      imgTemp.src = img.src.replace('.jpg', 't.jpg').replace(/\/\/i\d+/g, '//t3');
+      imgTemp.onerror = () => {
+          if(imgTemp.src.includes('t7') && imgTemp.src.includes('jpg')){
+              imgTemp.src = imgTemp.src.replace('t7', 't5');
+          }
+          else if(imgTemp.src.includes('t7') && imgTemp.src.includes('png')){
+              imgTemp.src = imgTemp.src.replace('png', 'jpg');
+          }
+          else if(imgTemp.src.includes('t5') && imgTemp.src.includes('png')){
+              imgTemp.src = imgTemp.src.replace('t5', 't7');
+          }
+          else if(imgTemp.src.includes('t3')&& imgTemp.src.includes('png')){
+              imgTemp.src = imgTemp.src.replace('t3', 't5');
+          }
+          else if(imgTemp.src.includes('jpg')){
+              imgTemp.src = imgTemp.src.replace('jpg', 'png');
+          }
+      }
       imgTemp.style.width = sizeImage//sizePercent + '%';
       imgTemp.style.height = 'auto';
       imgTemp.style.objectFit = 'cover';
@@ -222,6 +283,7 @@ async function createViewer(idGallery) {
   updatePage();
   containerBox.appendChild(imgBox);
   containerBox.appendChild(closeBtn);
+  containerBox.appendChild(favoriteBtn);
   document.body.style.overflow = "hidden";
   document.body.appendChild(containerBox);
 }
