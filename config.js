@@ -15,6 +15,19 @@ settings.smoothScroll = true;
 api.unmap('x')
 api.unmap('om')
 api.unmap('sr')
+let socket = null
+if(window.location.href.includes('iwara')){
+    socket = new WebSocket('ws://localhost:9790');
+    socket.addEventListener('message', (res) => {
+        const data = JSON.parse(res.data)
+        if(data.isContinue){
+            Array.from(document.querySelectorAll('div.videoTeaser')).forEach(el => {
+                if(el.querySelector('a').href.includes(data.url))
+                    el.style.backgroundColor = ''
+            })
+        }
+    })
+}
 async function createViewer(idGallery) {
   const urls = await fetch('https://nhentai.net/api/gallery/' + idGallery).then(res => res.json()).then(data => {
     const mediaId = data.media_id;
@@ -212,7 +225,21 @@ async function createViewer(idGallery) {
   document.body.style.overflow = "hidden";
   document.body.appendChild(containerBox);
 }
-
+api.mapkey('sf', 'Open all video on page', function() {
+    let index = 0;
+    const urls = Array.from(document.querySelectorAll('a[href*="/video/"]')).map(a => getIdIwara(a.href)).filter((item, pos, self) => self.indexOf(item) == pos);
+    copyIwaraVideo(urls[0], vidIndex, true)
+    socket.onmessage = (res) => {
+        const data = JSON.parse(res.data)
+        if(data.isContinue){
+            copyIwaraVideo(urls[++index], vidIndex, true)
+        }
+    }
+}, {domain: /iwara/g});
+api.mapkey('st', 'Stop socket', function() {
+    api.Front.showBanner('Stopped Socket')
+    socket.onmessage = () => {};
+} );
 api.mapkey('sr', 'Read Comic', function() {
     api.Hints.create('a[href*="/g/"]', el => {
         const id = el.href.replace(/[^0-9]/g, '');
@@ -570,6 +597,14 @@ function getIwaraVideoId(url){
     return url.match(/(video\/.+\/)|(video\/.+)/)[0].replace(/video|\//g, '');
 }
 function copyIwaraVideo(id, index, isPlayWithMpv){
+    function changeColorForPlayingUrl(id){
+        Array.from(document.querySelectorAll('div.videoTeaser>a')).forEach(el => {
+            if(el.href.includes(id)){
+                el.parentElement.style.backgroundColor = 'blue';
+            }
+        })
+    }
+    changeColorForPlayingUrl(id)
     function getFileId(url){
         return url.match(/file\/.+\?/g)[0].replace(/file\/|\?/g, '')
     }
