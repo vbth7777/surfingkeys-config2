@@ -15,6 +15,32 @@ settings.smoothScroll = true;
 api.unmap('x')
 api.unmap('om')
 api.unmap('sr')
+function dispatchSKEvent(type, args) {
+    document.dispatchEvent(new CustomEvent(`surfingkeys:${type}`, { 'detail': args }));
+}
+function highlightElement(elm) {
+    var rc;
+    if (document.scrollingElement === elm) {
+        rc = {
+            top: 0,
+            left: 0,
+            width: window.innerWidth,
+            height: window.innerHeight
+        };
+    } else {
+        rc = elm.getBoundingClientRect();
+    }
+    dispatchSKEvent('highlightElement', {
+        duration: 200,
+        rect: {
+            top: rc.top,
+            left: rc.left,
+            width: rc.width,
+            height: rc.height
+        }
+    });
+}
+
 let socket = null
 if(window.location.href.includes('iwara')){
     socket = new WebSocket('ws://localhost:9790');
@@ -182,6 +208,7 @@ async function createViewer(idGallery) {
   const paginationTop = createPagination();
   const paginationBottom = createPagination();
   const imgBox = document.createElement('div');
+  imgBox.className = 'tth-images-area'
   imgBox.style.position = 'relative';
   imgBox.style.width = '100%';
   imgBox.style.height = '100%';
@@ -289,6 +316,7 @@ async function createViewer(idGallery) {
   containerBox.appendChild(favoriteBtn);
   document.body.style.overflow = "hidden";
   document.body.appendChild(containerBox);
+  Hints.create("tth-images-area", Hints.dispatchMouseClick);
 }
 api.mapkey('sf', 'Open all video on page', function() {
     let index = 0;
