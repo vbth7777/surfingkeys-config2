@@ -15,45 +15,26 @@ settings.smoothScroll = true;
 api.unmap('x')
 api.unmap('om')
 api.unmap('sr')
-function dispatchSKEvent(type, args) {
-    document.dispatchEvent(new CustomEvent(`surfingkeys:${type}`, { 'detail': args }));
-}
-function highlightElement(elm) {
-    var rc;
-    if (document.scrollingElement === elm) {
-        rc = {
-            top: 0,
-            left: 0,
-            width: window.innerWidth,
-            height: window.innerHeight
-        };
-    } else {
-        rc = elm.getBoundingClientRect();
-    }
-    dispatchSKEvent('highlightElement', {
-        duration: 200,
-        rect: {
-            top: rc.top,
-            left: rc.left,
-            width: rc.width,
-            height: rc.height
-        }
-    });
-}
 
 let socket = null
-if(window.location.href.includes('iwara')){
-    socket = new WebSocket('ws://localhost:9790');
-    socket.addEventListener('message', (res) => {
-        const data = JSON.parse(res.data)
-        if(data.isContinue){
-            Array.from(document.querySelectorAll('div.videoTeaser')).forEach(el => {
-                if(el.querySelector('a').href.includes(data.url))
-                    el.style.backgroundColor = ''
-            })
-        }
-    })
+function setSocket(){
+    if(window.location.href.includes('iwara')){
+        socket = new WebSocket('ws://localhost:9790');
+        socket.addEventListener('error', (res) => {
+            setSocket();
+        })
+        socket.addEventListener('message', (res) => {
+            const data = JSON.parse(res.data)
+            if(data.isContinue){
+                Array.from(document.querySelectorAll('div.videoTeaser')).forEach(el => {
+                    if(el.querySelector('a').href.includes(data.url))
+                        el.style.backgroundColor = ''
+                })
+            }
+        })
+    }
 }
+setSocket();
 async function createViewer(idGallery) {
   const urls = await fetch('https://nhentai.net/api/gallery/' + idGallery).then(res => res.json()).then(data => {
     const mediaId = data.media_id;
@@ -107,11 +88,14 @@ async function createViewer(idGallery) {
   closeBtn.onclick = () => {
     removeContainerBox();
   }
+  const infoBox = document.createElement('div');
+  infoBox.style.position = 'absolute';
+  infoBox.style.top = '0';
+  infoBox.style.left = '0';
+  infoBox.style.display = 'flex'
+  infoBox.style.flexDirection = 'column'
   const favoriteBtn = document.createElement('button');
-  favoriteBtn.style.position = 'absolute';
   favoriteBtn.className = 'tth-favorite-btn'
-  favoriteBtn.style.top = '0';
-  favoriteBtn.style.left = '0';
   favoriteBtn.innerHTML = "Loading...";
   favoriteBtn.style.backgroundColor = '#ED2553'
   favoriteBtn.style.border = 'none';
@@ -145,7 +129,29 @@ async function createViewer(idGallery) {
       const dom = parser.parseFromString(data, 'text/html');
       favoriteBtn.innerHTML =dom.querySelector('#favorite').innerText.toLowerCase().includes(unfavoriteMethod) ? unfavoriteMethod : favoriteMethod;
   })
-  
+  const createDetailInfoBox = (str) => {
+      const textBox = document.createElement('a');
+      textBox.style.padding = '5px';
+      textBox.style.margin = '5px';
+      textBox.style.border = '2px solid #ccc'
+      fetch('https://nhentai.net/api/gallery/'+idGallery).then(res => res.json()).then(data => {
+          const tags = data.tags;
+          for(let item of data.tags){
+              if(item.type == str.toLowerCase()){
+                  textBox.innerText = str+': \n'+item.name;
+                  textBox.href =item.url;
+                  return;
+              }
+          }
+          textBox.innerText = str+': None'
+          textBox.style.cursor = 'default';
+      })
+      return textBox;
+  }
+  infoBox.appendChild(favoriteBtn)
+  infoBox.appendChild(createDetailInfoBox('artist'))
+  infoBox.appendChild(createDetailInfoBox('group'))
+  infoBox.appendChild(createDetailInfoBox('parody'))
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
@@ -313,7 +319,7 @@ async function createViewer(idGallery) {
   updatePage();
   containerBox.appendChild(imgBox);
   containerBox.appendChild(closeBtn);
-  containerBox.appendChild(favoriteBtn);
+  containerBox.appendChild(infoBox);
   document.body.style.overflow = "hidden";
   document.body.appendChild(containerBox);
   Hints.create("tth-images-area", Hints.dispatchMouseClick);
