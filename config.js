@@ -10,6 +10,7 @@ api.map('gt', 'T');
 api.unmap('<ctrl-i>');
 
 // ------------------configure----------------
+let imagesPerPageForViewer = 30
 let vidIndex = 0;
 settings.smoothScroll = true;
 api.unmap('x')
@@ -45,7 +46,7 @@ async function createViewer(idGallery) {
     }
     return images;
   })
-  const imagesPerPage = 50;
+  const imagesPerPage = imagesPerPageForViewer;
 //   let sizePercent = 50;
   let sizeImage = '50vw';
   let page = 1;
@@ -566,7 +567,10 @@ function preventKey(key) {
   });
 }
 function getIdIwara(url){
-    return url.match(/video\/.+(\/)?/)[0].replace(/video\/|\/.+/g, '')
+    if(url.includes('iwara')){
+        return url.match(/video\/.+(\/)?/)[0].replace(/video\/|\/.+/g, '')
+    }
+    return url;
 }
 api.mapkey('sk', 'Click like button', function(){
     clickLikeButtonYoutube()
